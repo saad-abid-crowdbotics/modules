@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import 'react-native-gesture-handler';
 import Pubnub from 'pubnub';
+// @ts-ignore
 import { PubNubProvider } from "pubnub-react";
 import Navigator from './src/Navigator';
 import { useStore, uuid } from './src/store';
 import { StatusBar, AppState } from 'react-native';
 import listener from './src/model';
+// @ts-ignore
 import { PUBNUB_SUB, PUBNUB_PUB } from "@env"
 
 const subscribeKey = PUBNUB_SUB
