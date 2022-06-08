@@ -1,0 +1,13 @@
+{
+    "name": "@modules/createslice",
+    "version": "1.0.0",
+    "description": "Sample redux createslice",
+    "private": true,
+    "main": "index.js",
+    "author": "Crowdbotics",
+    "license": "ISC",
+    "dependencies": {},
+    "x-dependencies": {
+       "react-native-encrypted-storage": "4.0.2"
+    }
+}
