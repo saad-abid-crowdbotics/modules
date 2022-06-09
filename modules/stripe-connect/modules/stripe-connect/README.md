@@ -1,0 +1,5 @@
+# Stripe Connect React native specs
+
+## Android specific Configs
+
+## iOS specific Configs

@@ -1,0 +1,11 @@
+{
+  "title": "Stripe connect",
+  "description": "Stripe Connect",
+  "root": "/",
+  "schema": {
+    "buttonText": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
