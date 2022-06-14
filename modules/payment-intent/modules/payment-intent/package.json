@@ -1,0 +1,13 @@
+{
+    "name": "@modules/payment-intent",
+    "version": "1.0.0",
+    "description": "payment-intent",
+    "private": true,
+    "main": "index.js",
+    "author": "Crowdbotics",
+    "license": "ISC",
+    "dependencies": {},
+    "x-dependencies": {
+        "@stripe/stripe-react-native": "0.12.0"
+    }
+}

@@ -1,0 +1,11 @@
+{
+  "title": "payment-intent",
+  "description": "Module Description",
+  "root": "/",
+  "schema": {
+    "buttonText": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
