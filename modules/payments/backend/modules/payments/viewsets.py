@@ -1,3 +1,4 @@
+from modules.payments.backend.modules.payments.models import StripeSetting
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import authentication, permissions, status
@@ -60,3 +61,12 @@ class GetPaymentMethodsView(APIView):
             "data": history
         }
         return Response(response, status=status.HTTP_200_OK)
+
+
+class StripeSettingView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        res = StripeSetting.objects.get()
+        return Response(res, status=status.HTTP_200_OK)
