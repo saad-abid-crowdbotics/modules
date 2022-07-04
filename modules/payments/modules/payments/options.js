@@ -59,6 +59,48 @@ const styles = StyleSheet.create({
     margin: 10,
     backgroundColor: "#c9c9c9c9",
     borderRadius: 10
+  },
+  container1: {
+    flex: 1,
+    paddingHorizontal: 10,
+    backgroundColor: "#FFF"
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginHorizontal: 30,
+    marginTop: 15,
+    marginBottom: 40
+  },
+  back: { width: 11.25, height: 20, resizeMode: "contain", marginLeft: -15 },
+  heading: { fontSize: 16, color: "#000" },
+  trackingContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    margin: 10,
+    paddingHorizontal: 10
+  },
+  switch: { borderWidth: 2, borderColor: "#000" },
+  switchText: { fontSize: 24, fontWeight: "bold" },
+  mr10: {
+    marginLeft: 25,
+    marginBottom: 10
+  },
+  buttonBottom: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center"
+  },
+  textInput: {
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: "#C4C4C4",
+    marginBottom: 30,
+    marginHorizontal: 7,
+    paddingHorizontal: 10
+
   }
 });
 
