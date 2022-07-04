@@ -4,6 +4,12 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 
+
+class StripeSetting(models.Model):
+    is_wallet_connect = models.BooleanField(default=False)
+    application_fee = models.IntegerField(default=0)
+
+
 class StripeUserProfile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, 
@@ -25,7 +31,3 @@ def create_stripe_profile(sender, instance, created, **kwargs):
 
 post_save.connect(create_stripe_profile, sender=settings.AUTH_USER_MODEL, dispatch_uid="create_user_profile")
 
-
-class StripeSetting(models.Model):
-    is_wallet_connect = models.BooleanField(default=False)
-    application_fee = models.IntegerField(default=0)

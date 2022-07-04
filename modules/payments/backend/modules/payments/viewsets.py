@@ -1,9 +1,11 @@
-from modules.payments.backend.modules.payments.models import StripeSetting
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import authentication, permissions, status
 from django.contrib.auth.models import User
 import stripe
+
+from .models import StripeSetting
+
 from .services.StripeService import StripeService
 
 class PaymentSheetView(APIView):
@@ -68,5 +70,5 @@ class StripeSettingView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        res = StripeSetting.objects.get()
+        res = StripeSetting.objects.all()
         return Response(res, status=status.HTTP_200_OK)

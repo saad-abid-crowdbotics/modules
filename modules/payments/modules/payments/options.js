@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
 });
 
 export const localOptions = {
-  stripeSecretKey: "sk_test_xxxxxxxxxxx",
+  stripeSecretKey: "sk_test_51I6B2tBZuKMpoaGSHjptnGx1uKM2UHzRpZZM93nUK35621GeKlBoVXysrthHkEMv2Le3DKS5eFL2DlpqNB7WwFVi00KplrjUpP",
   merchantName: "Example Inc.",
   enableGooglePay: true,
   enableApplePay: true,
@@ -113,7 +113,7 @@ export const localOptions = {
   merchantCountryCode: "US",
   merchantCurrency: "USD",
   stripeTestEnv: true,
-  stripePublishKey: "pk_test_xxxxxxxxxx"
+  stripePublishKey: "pk_test_51I6B2tBZuKMpoaGSgUqIBIqZot4le5ozrINvTGSaDNKr4gDdefPOgftlCl3KFgBfQbF7BfWAGErVKpFPXvAzuLRX00lBUxozen"
 };
 
 export default {
