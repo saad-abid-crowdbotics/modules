@@ -1,3 +1,4 @@
+from email.mime import application
 from django.db import models
 from django.conf import settings
 from django.db.models.signals import post_save
@@ -23,3 +24,8 @@ def create_stripe_profile(sender, instance, created, **kwargs):
         StripeUserProfile.objects.create(user=instance)
 
 post_save.connect(create_stripe_profile, sender=settings.AUTH_USER_MODEL, dispatch_uid="create_user_profile")
+
+
+class StripeSetting(models.Model):
+    is_wallet_connect = models.BooleanField(default=False)
+    application_fee = models.IntegerField(default=0)
