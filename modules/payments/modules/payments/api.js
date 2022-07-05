@@ -1,8 +1,8 @@
 import { getGlobalOptions } from "@options";
 
 const global = getGlobalOptions();
-const BASE_URL = global.url; // change your BASE_URL in `options/options.js` to edit this value
-const token = "Token 2a752a25cdc9b6ec57a61555262b54c6f8989b20";
+const BASE_URL = 'https://2d7e-39-53-110-60.ap.ngrok.io' //global.url; // change your BASE_URL in `options/options.js` to edit this value
+const token = "Token fab5be4cd2d4ac5aedf4b2bff0c2f8ed8055ad5d";
 // FIXME: Make this call with Authorization
 // Right now there is no login in this module but when this feture will be added
 // there will be a user profile added make changes accordingly

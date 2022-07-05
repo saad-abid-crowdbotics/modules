@@ -1,13 +1,10 @@
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import authentication, permissions, status
-from django.contrib.auth.models import User
 import stripe
 
 from .models import StripeSetting
 from .serializers import StripeSettingSerializer
-
 from .services.StripeService import StripeService
 
 class PaymentSheetView(APIView):
@@ -67,10 +64,11 @@ class GetPaymentMethodsView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
-class StripeSettingView(ModelViewSet):
-    serializer_class = StripeSettingSerializer
+class StripeSettingView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
-        queryset = StripeSetting.objects.all()
-        return queryset
+    def get(self, request, *args, **kwargs):
+        query = StripeSetting.objects.get(user_id=self.request.user.id)
+        serializer = StripeSettingSerializer(query)
+        return Response(serializer.data, status=status.HTTP_200_OK)
