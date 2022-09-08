@@ -6,7 +6,7 @@ const DISTRIBUTION_DIRECTORY = path.join("dist");
 
 export default {
   versions: {
-    rn: "0.68.0",
+    rn: "0.69.0",
     node: "16.15.1"
   },
   constants: {},
