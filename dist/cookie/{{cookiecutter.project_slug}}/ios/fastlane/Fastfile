@@ -117,7 +117,7 @@ platform(:ios) do
     create_build
 
     upload_to_testflight(
-      email: '{{cookiecutter.owner_email}}',
+      email: 'ProjectOwnerEmail',
       beta_app_description: "Beta version of #{app_name} uploaded by Crowdbotics"
     )
   end

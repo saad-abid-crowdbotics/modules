@@ -46,13 +46,13 @@
     "prettier": "^2.6.2"
   },
   "devDependencies": {
-    "@react-native-community/cli": "5.0.1",
+    "@react-native-community/cli": "8.0.6",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.2.0",
     "eslint-plugin-react": "^7.30.0",
-    "react-native": "0.64.2"
+    "react-native": "0.69.0"
   }
 }

@@ -53,7 +53,7 @@ jobs:
       - add_ssh_keys:
           fingerprints:
 {%- endraw %}
-            - '{{cookiecutter.ssh_key_fingerprint}}'
+            - 'ProjectSSHKeyFingerPrint'
 {% raw %}
       - checkout
 
