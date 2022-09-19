@@ -1,4 +1,4 @@
-# ProjectName
+# {{cookiecutter.project_slug}}
 
 Welcome to your new Crowdbotics app.
 
