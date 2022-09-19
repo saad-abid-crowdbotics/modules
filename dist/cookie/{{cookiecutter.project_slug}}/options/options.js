@@ -1,9 +1,9 @@
 import { StyleSheet } from "react-native";
 
 export const globalOptions = {
-  name: "{{cookiecutter.project_slug}}",
-  url: "https://{{cookiecutter.project_slug}}.botics.co",
-  api: "https://{{cookiecutter.project_slug}}.botics.co/api/v1"
+  name: "ProjectName",
+  url: "https://ProjectName.botics.co",
+  api: "https://ProjectName.botics.co/api/v1"
 }
 export const modulesOptions = {
   "@modules/app-menu": {

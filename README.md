@@ -16,8 +16,8 @@ Our template is on the latest React Native and React versions.
 
 ```json
   "dependencies": {
-    "react": "17.0.1",
-    "react-native": "0.64.2"
+    "react": "18.0.0",
+    "react-native": "0.69.0"
   },
 ```
 
