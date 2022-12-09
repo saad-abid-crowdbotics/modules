@@ -1,8 +1,11 @@
 # Zoom Free Calling
 
+<<<<<<< HEAD
 ### Installation command
 `yarn add react-native-zoom-us`
 
+=======
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
 1. Set pickFirst rules in android/app/build.gradle
 ```
 android {
@@ -14,14 +17,19 @@ android {
     }
 }
 ```
+<<<<<<< HEAD
 2. In your MainApplication.java inside of onCreate add 
 SoLoader.loadLibrary("zoom");
+=======
+2. In MainApplication.java inside of onCreate method add:
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
 ```
 @Override
 public void onCreate() {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
     SoLoader.loadLibrary("zoom"); // <-- ADD THIS LINE
+<<<<<<< HEAD
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
 }
 ```
@@ -49,6 +57,12 @@ public void onCreate() {
   android:networkSecurityConfig="@xml/network_security_config"
 >
 ```
+=======
+    return packages;
+}
+```
+
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
 ### iOS
 1. Make sure you have appropriate description in Info.plist:
 ```
@@ -68,6 +82,24 @@ public void onCreate() {
 3. Make sure to set ENABLE_BITCODE = NO; for both Debug and Release because bitcode is not supported by Zoom iOS SDK
 4. Optional: Implement custom UI See [docs](https://marketplace.zoom.us/docs/sdk/native-sdks/iOS/mastering-zoom-sdk/in-meeting-function/customized-in-meeting-ui/overview/) for more details.
 
+<<<<<<< HEAD
+=======
+
+### known issues
+
+* Undefined symbol: _OBJC_CLASS_$_MobileRTCMeetingJoinParam
+* Undefined symbol: _OBJC_CLASS_$_MobileRTCMeetingStartParam4WithoutLoginUser
+* Undefined symbol: __swift_FORCE_LOAD_$_swiftCoreFoundation
+
+------------------------------------------------------
+
+* Library not found for -lDoubleConversion
+
+```
+add "arm64" in Pods >> Build Settings >> Excluded Architectures
+```
+
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
 ### Configurations Keys
 ```
 CLIENT_ID = "...”
@@ -157,3 +189,12 @@ about instant meetings.
 ## Perform batch registration (Not implemented)
 Prerequisites: The meeting host must be a Licensed user.
 Rate Limit Label: Heavy
+<<<<<<< HEAD
+=======
+
+
+
+https://user-images.githubusercontent.com/76822297/176625854-0b51816d-d89d-4edc-8677-4c8572ff13b0.mp4
+
+
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527

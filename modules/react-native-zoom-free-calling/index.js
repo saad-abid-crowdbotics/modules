@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, NativeEventEmitter } from "react-native";
 // @ts-ignore
@@ -31,6 +32,40 @@ const ZoomCalling = () => {
   const [upcomingMeetingsList, setUpcomingMeetingsList] = useState([]);
   const [currentUser, setCurrentUser] = useState({
     id: '',
+=======
+import React, { useEffect, useState } from "react";
+import { View, Text, Image, NativeEventEmitter, StyleSheet } from "react-native";
+// @ts-ignore
+import ZoomUs, { ZoomEmitter } from "react-native-zoom-us";
+// @ts-ignore
+import { WebView } from "react-native-webview";
+import { API_URL, createMeeting, deleteMeeting, getCurrentUser, getMeetingList, getOauthToken, makeId, parseQueryString, parseStartDate } from "./utils";
+// @ts-ignore
+import DialogInput from "react-native-dialog-input";
+import Button from "./components/Button";
+import MeetingScheduleModal from "./components/MeetingScheduleModal";
+// @ts-ignore
+import CookieManager from "@react-native-cookies/cookies";
+import ScheduleMeetingList from "./components/ScheduleMeetingList";
+// @ts-ignore
+import { sha256 } from "react-native-sha256";
+import options from "./options";
+
+const ZoomCalling = () => {
+  const [sha256CodeChallenge, setSha256CodeChallenge] = useState("");
+  const userAgent = "Mozilla/5.0 (Linux; Android) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/98.0.4758.87 Mobile Safari/537.36";
+  const [isFirst, setIsFirst] = useState(true);
+  const [oauthToken, setOauthToken] = useState(false);
+  const [meetingInfo, setMeetingInfo] = useState(false);
+  const [isJoinMeeting, setIsJoinMeeting] = useState(false);
+  const [isMeetingScheduleModal, setIsMeetingScheduleModal] = useState(false);
+  const [isMeetingScheduleSave, setIsMeetingScheduleSave] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [meetingEvent, setMeetingEvent] = useState("");
+  const [upcomingMeetingsList, setUpcomingMeetingsList] = useState([]);
+  const [currentUser, setCurrentUser] = useState({
+    id: "",
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
     email: null,
     pmi: null,
     host_key: null,
@@ -38,8 +73,12 @@ const ZoomCalling = () => {
     first_name: "",
     last_name: "",
     personal_meeting_url: null
+<<<<<<< HEAD
   })
 
+=======
+  });
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
 
   useEffect(() => {
     ZoomUs.initialize({
@@ -47,18 +86,28 @@ const ZoomCalling = () => {
       clientSecret: options.SDK_SECRET
     }).then((res) => {
       setIsInitialized(true);
+<<<<<<< HEAD
     }).catch((error) => console.log(error))
 
     sha256(make_id(100)).then(hash => {
       setSha256CodeChallenge(hash)
     }).catch((error) => console.log(error))
   }, [])
+=======
+    }).catch((error) => console.log(error));
+
+    sha256(makeId(100)).then(hash => {
+      setSha256CodeChallenge(hash);
+    }).catch((error) => console.log(error));
+  }, []);
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
 
   useEffect(() => {
     if (!isInitialized) {
       return;
     }
     const zoomEmitter = new NativeEventEmitter(ZoomEmitter);
+<<<<<<< HEAD
     const eventListener = zoomEmitter.addListener('MeetingEvent', ({ event, status, ...params }) => {
       setMeetingEvent(event)
     });
@@ -67,10 +116,21 @@ const ZoomCalling = () => {
 
   useEffect(() => {
     if (meetingEvent == "endedBySelf" || meetingEvent == "endedRemovedByHost") {
+=======
+    const eventListener = zoomEmitter.addListener("MeetingEvent", ({ event, status, ...params }) => {
+      setMeetingEvent(event);
+    });
+    return () => eventListener.remove();
+  }, [isInitialized]);
+
+  useEffect(() => {
+    if (meetingEvent === "endedBySelf" || meetingEvent === "endedRemovedByHost") {
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
       if (meetingInfo) {
         setMeetingInfo(false);
       }
     }
+<<<<<<< HEAD
   }, [meetingEvent])
 
   useEffect(() => {
@@ -135,12 +195,79 @@ const ZoomCalling = () => {
   const onHandleMeetingSchedule = (data) => {
     setIsMeetingScheduleSave(true)
     let meetingPayload = {
+=======
+  }, [meetingEvent]);
+
+  useEffect(() => {
+    if (oauthToken) {
+      getCurrentUser(oauthToken.access_token).then(response => {
+        setCurrentUser(response);
+        getMeetingList(response.id, oauthToken.access_token).then(res => {
+          if (res.meetings.length === 0) { return; }
+
+          const DATA = [{
+            title: "Upcoming Meetings",
+            data: res.meetings
+          }];
+          setUpcomingMeetingsList(DATA);
+        }).catch((error) => console.log(error));
+      }).catch((error) => console.log(error));
+    }
+  }, [oauthToken]);
+
+  const startMeeting = () => {
+    const meetingPayload = {
+      topic: `${currentUser.first_name + "" + currentUser.last_name}'s Personal Meeting Room`,
+      type: 1
+    };
+    createMeeting(currentUser.id, meetingPayload, oauthToken.access_token).then(response => {
+      setMeetingInfo(response);
+      const params = parseQueryString(response.start_url);
+      if (params.zak) {
+        ZoomUs.startMeeting({
+          userName: currentUser.first_name + "" + currentUser.last_name,
+          meetingNumber: currentUser.pmi,
+          userId: currentUser.id,
+          zoomAccessToken: params.zak
+        });
+      }
+    }).catch(err => console.log(err));
+  };
+
+  const joinMeeting = (meetingId) => {
+    setIsJoinMeeting(false);
+    ZoomUs.joinMeeting({
+      userName: currentUser.first_name + "" + currentUser.last_name,
+      meetingNumber: meetingId
+    }).then(res => console.log(res)).catch((error) => console.log(error));
+  };
+
+  const onNavigationStateChange = (evt) => {
+    if (evt.url.includes(options.REDIRECT_URI)) {
+      const params = parseQueryString(evt.url);
+      if (params.code && isFirst) {
+        setIsFirst(false);
+        getOauthToken(params.code, sha256CodeChallenge).then((response) => {
+          setOauthToken(response);
+        }).catch((error) => console.log(error));
+      }
+    }
+  };
+
+  const onHandleMeetingSchedule = (data) => {
+    setIsMeetingScheduleSave(true);
+    const meetingPayload = {
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
       settings: {
         host_video: data.hostVideo,
         participant_video: data.participantsVideo,
         use_pmi: data.meetingID
       },
+<<<<<<< HEAD
       start_time: parse_start_date(data.startDate),
+=======
+      start_time: parseStartDate(data.startDate),
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
       timezone: data.timezone,
       topic: data.topic,
       type: 2,
@@ -154,6 +281,7 @@ const ZoomCalling = () => {
         type: 1,
         weekly_days: 1
       }
+<<<<<<< HEAD
     }
     if(data.recurring_meeting && data.recurrence.recurrence_type != -1) {
       meetingPayload.type = 8
@@ -213,20 +341,87 @@ const ZoomCalling = () => {
   return (
     <View style={styles.Container}>
       {oauthToken ? <>
+=======
+    };
+    if (data.recurring_meeting && data.recurrence.recurrence_type !== -1) {
+      meetingPayload.type = 8;
+      meetingPayload.recurrence.type = data.recurrence.recurrence_type;
+      meetingPayload.recurrence.repeat_interval = data.recurrence.repeatEvery;
+      if (data.recurrence.isBy) {
+        meetingPayload.recurrence.end_date_time = parseStartDate(data.recurrence.endDate);
+      } else {
+        meetingPayload.recurrence.end_times = data.recurrence.occurrences;
+      }
+      if (data.recurrence.recurrence_type === 2) {
+        meetingPayload.recurrence.weekly_days = data.recurrence.weekly_days;
+      }
+      if (data.recurrence.recurrence_type === 3) {
+        if (data.recurrence.isDayMonthly) { meetingPayload.recurrence.monthly_day = data.recurrence.dayOfMonth; } else {
+          meetingPayload.recurrence.monthly_week_day = data.recurrence.day;
+          meetingPayload.recurrence.monthly_week = data.recurrence.week;
+        }
+      }
+    } else if (data.recurring_meeting && data.recurrence.recurrence_type === -1) {
+      meetingPayload.type = 3;
+    }
+    createMeeting(currentUser.id, meetingPayload, oauthToken.access_token).then(() => {
+      setIsMeetingScheduleModal(!isMeetingScheduleModal);
+      setIsMeetingScheduleSave(false);
+      getMeetingList(currentUser.id, oauthToken.access_token).then(res => {
+        if (res.meetings.length === 0) { return; }
+
+        const DATA = [{
+          title: "Upcoming Meetings",
+          data: res.meetings
+        }];
+        setUpcomingMeetingsList(DATA);
+      }).catch((error) => console.log(error));
+    }).catch((error) => { setIsMeetingScheduleSave(false); console.log(error); });
+  };
+
+  const handleLogout = () => {
+    CookieManager.clearAll().then(() => {
+      setOauthToken(false);
+      setIsFirst(true);
+    }).catch((error) => console.log(error));
+  };
+
+  const handleRemoveMeeting = (item) => {
+    deleteMeeting(item.id, oauthToken.access_token).then(res => {
+      const tmpUpcomingMeetingsList = JSON.parse(JSON.stringify(upcomingMeetingsList));
+      const index = upcomingMeetingsList[0].data.indexOf(item);
+      tmpUpcomingMeetingsList[0].data.splice(index, 1);
+      setUpcomingMeetingsList(tmpUpcomingMeetingsList);
+    }).catch((error) => console.log(error));
+  };
+
+  return (
+    <View style={styles.Container}>
+      {oauthToken
+        ? <>
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
         <View style={styles.header}>
           <View>
             <Text onPress={handleLogout} style={styles.LogoutText}>Logout</Text>
           </View>
           <View style={styles.UserImageArea}>
             <View>
+<<<<<<< HEAD
               <Text>{currentUser.first_name + '' + currentUser.last_name}</Text>
+=======
+              <Text>{currentUser.first_name + "" + currentUser.last_name}</Text>
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
             </View>
             <Image
               style={styles.userLogo}
               resizeMode="cover"
               borderRadius={10}
               source={{
+<<<<<<< HEAD
                 uri: currentUser.pic_url,
+=======
+                uri: currentUser.pic_url
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
               }}
             />
           </View>
@@ -260,8 +455,14 @@ const ZoomCalling = () => {
           />
         }
 
+<<<<<<< HEAD
       </> : <>
           {sha256CodeChallenge != "" && 
+=======
+      </>
+        : <>
+          {sha256CodeChallenge !== "" &&
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
               <WebView
               useWebKit={true}
               userAgent={userAgent}
@@ -278,6 +479,7 @@ const ZoomCalling = () => {
 
 const styles = StyleSheet.create({
   Container: {
+<<<<<<< HEAD
     flex: 1,
   },
   header: {
@@ -285,6 +487,15 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
+=======
+    flex: 1
+  },
+  header: {
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
     marginTop: 5,
     alignItems: "center"
   },
@@ -295,12 +506,21 @@ const styles = StyleSheet.create({
   },
   LogoutText: {
     marginLeft: 5,
+<<<<<<< HEAD
     color: "#FA060D",
   },
   UserImageArea: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
+=======
+    color: "#FA060D"
+  },
+  UserImageArea: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center"
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
   },
   MainCard: {
     display: "flex",
@@ -314,6 +534,7 @@ const styles = StyleSheet.create({
     padding: 5
   },
   HostMeetingText: {
+<<<<<<< HEAD
     color: 'white',
     textTransform: 'uppercase'
   },
@@ -324,6 +545,18 @@ const styles = StyleSheet.create({
   ScheduleMeetingText: {
     color: 'white',
     textTransform: 'uppercase'
+=======
+    color: "white",
+    textTransform: "uppercase"
+  },
+  JoinMeetingText: {
+    color: "white",
+    textTransform: "uppercase"
+  },
+  ScheduleMeetingText: {
+    color: "white",
+    textTransform: "uppercase"
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
   },
   Area: {
     marginTop: 20
@@ -331,21 +564,33 @@ const styles = StyleSheet.create({
   MeetingCard: {
     width: "100%",
     height: 50,
+<<<<<<< HEAD
     padding: 5,
+=======
+    padding: 5
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
   },
   ///
   centeredView: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+<<<<<<< HEAD
     marginTop: 10,
+=======
+    marginTop: 10
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
   },
   modalView: {
     margin: 20,
     backgroundColor: "white",
     borderRadius: 20,
     padding: 15,
+<<<<<<< HEAD
     width: '90%',
+=======
+    width: "90%",
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -353,7 +598,11 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
+<<<<<<< HEAD
     elevation: 5,
+=======
+    elevation: 5
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
   },
   button: {
     borderRadius: 5,
@@ -367,4 +616,8 @@ const styles = StyleSheet.create({
 export default {
   title: "ZoomCalling",
   navigator: ZoomCalling
+<<<<<<< HEAD
 }
+=======
+};
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527

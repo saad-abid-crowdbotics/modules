@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect, Fragment } from 'react';
 import { View, Text, Modal, Pressable, SectionList } from "react-native";
 import Input from '../Input';
@@ -204,17 +205,45 @@ const MeetingScheduleModal = (props) => {
     let weekly_days = tmpWeeklyList.filter(obj => obj.isSelected).map(obj => obj.value)
     setMeetingSchedule({ ...meetingSchedule, recurrence: { ...meetingSchedule.recurrence, weekly_days: weekly_days.toString() } })
   }
+=======
+import React, { useState, Fragment } from "react";
+import { View, Text, Modal, SectionList, StyleSheet } from "react-native";
+import Input from "../Input";
+import options from "../../options";
+import Video from "../Video";
+import MeetingID from "../MeetingId";
+import RecurringMeeting from "../RecurringMeeting";
+import MeetingTime from "../MeetingTime";
+import Actions from "../Actions";
+
+const MeetingScheduleModal = (props) => {
+  const [meetingSchedule, setMeetingSchedule] = useState(options.initialMeetingSchedule);
+  const [errors, setErrors] = useState({ topic: "" });
+
+  const handleSave = () => {
+    if (meetingSchedule.topic === "") {
+      setErrors({ ...errors, topic: "This field is required." });
+      return;
+    }
+    props.onHandleMeetingSchedule(meetingSchedule);
+  };
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
 
   const meetingTopic = () => {
     return (
       <View style={styles.Mt10}>
         <Input
           label="Meeting topic"
+<<<<<<< HEAD
           errorMessage={(errors.topic != "") ? "This field is required." : ""}
+=======
+          errorMessage={(errors.topic !== "") ? "This field is required." : ""}
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
           onChangeText={(text) => setMeetingSchedule({ ...meetingSchedule, topic: text })}
         />
       </View>
     );
+<<<<<<< HEAD
   }
 
   const meetingTime = () => {
@@ -577,6 +606,18 @@ const MeetingScheduleModal = (props) => {
   const DATA = [
     {
       data: [meetingTopic(), meetingTime(), recurringMeeting(), meetingID(), video(), actions()]
+=======
+  };
+
+  const DATA = [
+    {
+      data: [meetingTopic(),
+        <MeetingTime key="MeetingTime" meetingSchedule={meetingSchedule} setMeetingSchedule={setMeetingSchedule} />,
+        <RecurringMeeting key={"RecurringMeeting"} meetingSchedule={meetingSchedule} setMeetingSchedule={setMeetingSchedule} />,
+        <MeetingID key={"MeetingID"} meetingSchedule={meetingSchedule} setMeetingSchedule={setMeetingSchedule} />,
+        <Video key={"Video"} meetingSchedule={meetingSchedule} setMeetingSchedule={setMeetingSchedule} />,
+        <Actions key={"Actions"} handleSave={handleSave} setModalVisible={props.setModalVisible} />]
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
     }
   ];
 
@@ -592,12 +633,21 @@ const MeetingScheduleModal = (props) => {
         <SectionList
           sections={DATA}
           keyExtractor={(item, index) => index.toString()}
+<<<<<<< HEAD
           renderItem={({ item }) => <>{item}</>}
         />
       </View>
     </Modal>
   )
 }
+=======
+          renderItem={({ item, index }) => <Fragment key={index}>{item}</Fragment>}
+        />
+      </View>
+    </Modal>
+  );
+};
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
 
 const styles = StyleSheet.create({
   modalView: {
@@ -606,7 +656,11 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 20,
     padding: 15,
+<<<<<<< HEAD
     width: '90%',
+=======
+    width: "90%",
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -614,6 +668,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
+<<<<<<< HEAD
     elevation: 5,
   },
   button: {
@@ -816,3 +871,19 @@ const styles = StyleSheet.create({
 });
 
 export default MeetingScheduleModal
+=======
+    elevation: 5
+  },
+  heading: {
+    fontSize: 24,
+    color: "black",
+    fontWeight: "bold",
+    marginRight: 40
+  },
+  Mt10: {
+    marginTop: 10
+  }
+});
+
+export default MeetingScheduleModal;
+>>>>>>> 9e8fd9de641fdb681217e7d84654b35371dbc527
