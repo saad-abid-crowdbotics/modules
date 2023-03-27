@@ -3,171 +3,171 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   sectionContainer: {
     marginTop: 32,
-    paddingHorizontal: 24,
+    paddingHorizontal: 24
   },
   sectionTitle: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: "600"
   },
   sectionDescription: {
     marginTop: 8,
     fontSize: 18,
-    fontWeight: '400',
+    fontWeight: "400"
   },
   highlight: {
-    fontWeight: '700',
+    fontWeight: "700"
   },
   outerContainer: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#d6dce4',
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#d6dce4"
   },
   innerContainer: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%"
   },
   topContainer: {
-    width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
+    width: "100%",
+    flexDirection: "column",
+    justifyContent: "flex-end",
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: 'rgba(51, 104, 123, 1)',
+    backgroundColor: "rgba(51, 104, 123, 1)"
   },
   textTopContainer: {
-    color: 'rgba(255, 255, 255, 1)',
+    color: "rgba(255, 255, 255, 1)"
   },
   membersOnlineContainer: {
-    width: '100%',
-    flexDirection: 'row',
+    width: "100%",
+    flexDirection: "row"
   },
   member: {
-    paddingHorizontal: 4,
+    paddingRight: 4,
     paddingVertical: 4,
-    color: 'rgba(255, 255, 255, 1)',
+    color: "rgba(255, 255, 255, 1)"
   },
   friendlyNameEdit: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 4,
-    //height: 100
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 4
+    // height: 100
   },
   messageScrollContainer: {
     flex: 1,
-    width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
+    width: "100%",
+    flexDirection: "column",
+    justifyContent: "flex-end",
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#d6dce4',
+    backgroundColor: "#d6dce4"
   },
   messageContainerThem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 12,
-    width: '100%',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    width: "100%",
+    alignItems: "center",
+    backgroundColor: "#fff",
     padding: 8,
     paddingLeft: 16,
     paddingRight: 16,
     borderBottomRightRadius: 16,
     borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    borderTopRightRadius: 16
   },
   messageContainerMe: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 12,
-    width: '100%',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    width: "100%",
+    alignItems: "center",
+    backgroundColor: "#fff",
     padding: 8,
     paddingLeft: 16,
     paddingRight: 16,
     borderBottomLeftRadius: 16,
     borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    borderTopRightRadius: 16
   },
   messageContent: {
-    flex: 1,
+    flex: 1
   },
   messageSender: {
     fontSize: 12,
-    color: 'rgba(0, 0, 0, 1)',
+    color: "rgba(0, 0, 0, 1)"
   },
   messageText: {
     fontSize: 14,
-    fontWeight: '700',
-    color: 'rgba(0, 0, 0, 1)',
+    fontWeight: "700",
+    color: "rgba(0, 0, 0, 1)"
   },
   messageTimetoken: {
     fontSize: 10,
-    color: 'rgba(0, 0, 0, 1)',
+    color: "rgba(0, 0, 0, 1)"
   },
   timetokenContainer: {
     flex: 1,
-    alignItems: 'flex-end',
+    alignItems: "flex-end"
   },
   avatarThem: {
     width: 38,
     height: 38,
     borderRadius: 50,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginRight: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(51, 104, 123, 1)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(51, 104, 123, 1)"
   },
   avatarMe: {
     width: 38,
     height: 38,
     borderRadius: 50,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginLeft: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(151, 204, 223, 1)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(151, 204, 223, 1)"
   },
   avatarNone: {
-    display: 'none',
+    display: "none"
   },
   bottomContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
     padding: 8,
     height: 80,
-    backgroundColor: '#d6dce4',
+    backgroundColor: "#d6dce4"
   },
   textInput: {
     flex: 1,
-    backgroundColor: '#fff',
-    color: 'rgba(0, 0, 0, 1)',
+    backgroundColor: "#fff",
+    color: "rgba(0, 0, 0, 1)",
     borderRadius: 4,
     padding: 16,
-    elevation: 2,
+    elevation: 2
   },
   textInputFriendlyName: {
     flex: 1,
-    backgroundColor: '#fff',
-    color: 'rgba(0, 0, 0, 1)',
+    backgroundColor: "#fff",
+    color: "rgba(0, 0, 0, 1)",
     borderRadius: 8,
     padding: 8,
-    elevation: 2,
+    elevation: 2
   },
   saveFriendlyName: {
-    position: 'absolute',
-    right: 32,
+    position: "absolute",
+    right: 32
   },
   submitButton: {
-    position: 'absolute',
-    right: 32,
+    position: "absolute",
+    right: 32
   },
   logo: {
-    width: '50%',
+    width: "50%",
     height: undefined,
-    aspectRatio: 0.9,
-  },
+    aspectRatio: 0.9
+  }
 });
 
 const PUBNUB_PUB = "pub-c-09dc7d68-298a-4dd5-9623-7cc67ddaa937";
@@ -181,20 +181,10 @@ const user = {
 };
 
 export const users = [
-  { name: 'Amir', user_id: '03436599622' },
-  { name: 'Abdul Gafoor', user_id: '03069790566' },
-  { name: 'Imtiaz', user_id: '03146862263' }
-]
-
-
-
-//  This application hardcodes a single channel name for simplicity.  Typically you would use separate channels for each
-//  type of conversation, e.g. each 1:1 chat would have its own channel, named appropriately.
-const channel_name = 'group_chat'
-//  The deviceId is required to initiate the PubNub object, this will be updated once
-//  the application launches with an ID based on the device's hardware (considering the
-//  platforms privacy rules).
-var deviceId = 'ChangeMe'
+  { name: "Amir", user_id: "03436599622" },
+  { name: "Abdul Gafoor", user_id: "03069790566" },
+  { name: "Imtiaz", user_id: "03146862263" }
+];
 
 export default {
   PUBNUB_SUB: PUBNUB_SUB,
@@ -203,7 +193,5 @@ export default {
   FILESTACK_KEY: FILESTACK_KEY,
   user: user,
   users: users,
-  CHANNEL_NAME: channel_name,
-  USER_UNIQUE_ID: deviceId,
   styles: styles
 };

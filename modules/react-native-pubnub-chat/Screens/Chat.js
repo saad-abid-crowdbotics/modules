@@ -1,11 +1,9 @@
-import React from 'react'
+import React from "react";
 
-import ChatView from '../ChatView'
-
+import ChatView from "../ChatView";
 
 const Chat = (props) => {
-
-  const channelInfo = props.route.params.channelInfo
-  return <ChatView channel_name={channelInfo.groupName} user_unique_id={channelInfo.user} />
-}
-export default Chat
+  const channelInfo = props.route.params.channelInfo;
+  return <ChatView channelName={channelInfo.groupName} userUniqueId={channelInfo.user} />;
+};
+export default Chat;

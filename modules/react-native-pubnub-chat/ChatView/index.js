@@ -1,69 +1,69 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react";
 import {
   AppState, Button, Image, KeyboardAvoidingView, Platform, SafeAreaView,
   ScrollView,
   Text,
   TextInput, View
-} from 'react-native'
+} from "react-native";
 
-import options, { users } from '../options'
-import PubNub from 'pubnub'
-import { convertTimetoken, fetchMessages, getUUIDMetadata, hereNow, publish, setMemberships, setUUID, setUUIDMetadata, subscribe, unsubscribe } from '../utils'
+import options, { users } from "../options";
+import PubNub from "pubnub";
+import { convertTimetoken, fetchMessages, getUUIDMetadata, hereNow, publish, setMemberships, setUUID, setUUIDMetadata, subscribe, unsubscribe } from "../utils";
 
 const pubnub = new PubNub({
   subscribeKey: options.PUBNUB_SUB,
   publishKey: options.PUBNUB_PUB,
-  uuid: 'ChangeMe',
-})
+  uuid: "ChangeMe"
+});
 
-const ChatView = ({ user_unique_id, channel_name }) => {
-  const [input, setInput] = useState('')
-  const [messages, setMessages] = useState([])
-  const [friendlyNames, setFriendlyNames] = useState({})
-  const [onlineMembers, setOnlineMembers] = useState({ online: [] })
-  const [myFriendlyName, setMyFriendlyName] = useState('')
-  const [friendlyNameEditable, setFriendlyNameEditable] = useState(false)
-  const [friendlyNameButtonText, setFriendlyNameButtonText] = useState('Edit')
+const ChatView = ({ userUniqueId, channelName }) => {
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [friendlyNames, setFriendlyNames] = useState({});
+  const [onlineMembers, setOnlineMembers] = useState({ online: [] });
+  const [myFriendlyName, setMyFriendlyName] = useState("");
+  const [friendlyNameEditable, setFriendlyNameEditable] = useState(false);
+  const [friendlyNameButtonText, setFriendlyNameButtonText] = useState("Edit");
 
   //  This application is designed to unsubscribe from the channel when it goes to the background and re-subscribe
   //  when it comes to the foreground.  This is a fairly common design pattern.  In production, you would probably
   //  also use a native push message to alert the user whenever there are missed messages.  For more information
   //  see https://www.pubnub.com/tutorials/push-notifications/
   const handleChange = newState => {
-    if (newState === 'active') {
+    if (newState === "active") {
       //  application is in the foreground
-      subscribe(pubnub, channel_name)
-    } else if (newState == 'background') {
+      subscribe(pubnub, channelName);
+    } else if (newState === "background") {
       //  application is in the background
       //  This getting started application is set up to unsubscribe from all channels when the app goes into the background.
       //  This is good to show the principles of presence but you don't need to do this in a production app if it does not fit your use case.
-      unsubscribe(pubnub, channel_name)
+      unsubscribe(pubnub, channelName);
     }
-  }
+  };
 
   useEffect(() => {
     async function getDeviceId() {
-      setUUID(pubnub, user_unique_id)
+      setUUID(pubnub, userUniqueId);
 
       //  In order to receive object UUID events (in the addListener) it is required to set our
       //  membership using the Object API.
-      setMemberships(pubnub, channel_name)
+      setMemberships(pubnub, channelName);
 
       //  There is logic in the presence listener to determine who is in the channel but
       //  I am definitely here
-      addMember(user_unique_id)
+      addMember(userUniqueId);
 
-      const user = users.find(user => user.user_id == user_unique_id)
-      await setUUIDMetadata(pubnub, user.name)
-      
+      const user = users.find(user => user.user_id === userUniqueId);
+      await setUUIDMetadata(pubnub, user.name);
+
       //  Subscribe to the pre-defined channel representing this chat group.  This will allow us to receive messages
       //  and presence events for the channel (what other users are in the room)
-      subscribe(pubnub, channel_name)
+      subscribe(pubnub, channelName);
     }
 
-    getDeviceId()
-    
-    const subscription = AppState.addEventListener('change', handleChange)
+    getDeviceId();
+
+    const subscription = AppState.addEventListener("change", handleChange);
     if (pubnub) {
       const listener = {
         //  A message is received from PubNub.  This is the entry point for all messages on all
@@ -75,31 +75,31 @@ const ChatView = ({ user_unique_id, channel_name }) => {
               id: receivedMsg.timetoken,
               author: receivedMsg.publisher,
               content: receivedMsg.message,
-              timetoken: receivedMsg.timetoken,
-            },
-          ])
+              timetoken: receivedMsg.timetoken
+            }
+          ]);
         },
         //  Be notified that a 'presence' event has occurred.  I.e. somebody has left or joined
         //  the channel.  This is similar to the earlier hereNow call but this API will only be
         //  invoked when presence information changes, meaning you do NOT have to call hereNow
         //  periodically.
         presence: presenceMsg => {
-          if (presenceMsg.action == 'join') {
-            addMember(presenceMsg.uuid)
-          } else if (presenceMsg.action == 'leave') {
-            removeMember(presenceMsg.uuid)
-          } else if (presenceMsg.action == 'interval') {
+          if (presenceMsg.action === "join") {
+            addMember(presenceMsg.uuid);
+          } else if (presenceMsg.action === "leave") {
+            removeMember(presenceMsg.uuid);
+          } else if (presenceMsg.action === "interval") {
             //  'join' and 'leave' will work up to the ANNOUNCE_MAX setting (defaults to 20 users)
             //  Over ANNOUNCE_MAX, an 'interval' message is sent.  More info: https://www.pubnub.com/docs/presence/presence-events#interval-mode
             //  The below logic requires that 'Presence Deltas' be defined for the keyset, you can do this from the admin dashboard
-            if (presenceMsg['join'] != undefined) {
-              for (var i = 0; i < presenceMsg['join'].length; i++) {
-                addMember(presenceMsg['join'][i])
+            if (presenceMsg.join !== undefined) {
+              for (let i = 0; i < presenceMsg.join.length; i++) {
+                addMember(presenceMsg.join[i]);
               }
             }
-            if (presenceMsg['leave'] != undefined) {
-              for (var i = 0; i < presenceMsg['leave'].length; i++) {
-                removeMember(presenceMsg['leave'][i])
+            if (presenceMsg.leave !== undefined) {
+              for (let i = 0; i < presenceMsg.leave.length; i++) {
+                removeMember(presenceMsg.leave[i]);
               }
             }
           }
@@ -108,95 +108,95 @@ const ChatView = ({ user_unique_id, channel_name }) => {
         //  See: https://www.pubnub.com/docs/chat/sdks/users/setup
         //  Use this to be notified when other users change their friendly names
         objects: objMsg => {
-          if (objMsg.message.type == 'uuid') {
-            replaceMemberName(objMsg.message.data.id, objMsg.message.data.name)
+          if (objMsg.message.type === "uuid") {
+            replaceMemberName(objMsg.message.data.id, objMsg.message.data.name);
           }
-        },
-      }
+        }
+      };
 
       //  Applications receive various types of information from PubNub through a 'listener'
-      pubnub.addListener(listener)
+      pubnub.addListener(listener);
 
       //  When the application is first loaded, it is common to load any recent chat messages so the user
       //  can get caught up with conversations they missed.  Every application will handle this differently
       //  but here we just load the 8 most recent messages
-      fetchMessages(pubnub, channel_name)
+      fetchMessages(pubnub, channelName)
         .then(historicalMessages => {
-          var historicalMessagesArray =
-            historicalMessages['channels'][channel_name]
-          for (var i = 0; i < historicalMessagesArray.length; i++) {
-            var message = historicalMessagesArray[i]
-            lookupMemberName(message.uuid)
+          const historicalMessagesArray =
+            historicalMessages.channels[channelName];
+          for (let i = 0; i < historicalMessagesArray.length; i++) {
+            const message = historicalMessagesArray[i];
+            lookupMemberName(message.uuid);
             setMessages(msgs => [
               ...msgs,
               {
                 id: message.timetoken,
                 author: message.uuid,
                 content: message.message,
-                timetoken: message.timetoken,
-              },
-            ])
+                timetoken: message.timetoken
+              }
+            ]);
           }
-        })
+        });
 
       //  PubNub has an API to determine who is in the room.  Use this call sparingly since you are only ever likely to
       //  need to know EVERYONE in the room when the UI is first created.
-      hereNow(pubnub, channel_name)
+      hereNow(pubnub, channelName)
         .then(devicesHereNow => {
           try {
-            var occupants =
-              devicesHereNow['channels'][channel_name]['occupants']
+            const occupants =
+              devicesHereNow.channels[channelName].occupants;
 
             occupants.forEach(function (member, index) {
-              addMember(occupants[index].uuid)
-            })
+              addMember(occupants[index].uuid);
+            });
           } catch (error) {
             //  Error executing hereNow
           }
-        })
+        });
 
       return () => {
-        subscription.remove()
-      }
+        subscription.remove();
+      };
     }
-  }, [pubnub])
+  }, [pubnub]);
 
   //  A DeviceID is present in the chat (as determined by either hereNow or the presence event)
   //  Update our chat member list
   const addMember = deviceId => {
-    if (!onlineMembers['online'].includes(deviceId)) {
-      var newMembers = onlineMembers
-      newMembers['online'].push(deviceId)
+    if (!onlineMembers.online.includes(deviceId)) {
+      const newMembers = onlineMembers;
+      newMembers.online.push(deviceId);
 
       //  Force an update.  Recreate object since state comparisons are shallow
-      setOnlineMembers({ ...newMembers })
+      setOnlineMembers({ ...newMembers });
     }
-    lookupMemberName(deviceId)
-  }
+    lookupMemberName(deviceId);
+  };
 
   //  A Device ID is absent from the chat (as determined by either hereNow or the presence event)
   //  Update our chat member list
   const removeMember = deviceId => {
-    if (onlineMembers['online'].includes(deviceId)) {
-      var newMembers = onlineMembers
-      const index = newMembers['online'].indexOf(deviceId)
-      if (index > -1) newMembers['online'].splice(index, 1)
+    if (onlineMembers.online.includes(deviceId)) {
+      const newMembers = onlineMembers;
+      const index = newMembers.online.indexOf(deviceId);
+      if (index > -1) newMembers.online.splice(index, 1);
 
       //  Force an update.  Recreate object since state comparisons are shallow
-      setOnlineMembers({ ...newMembers })
+      setOnlineMembers({ ...newMembers });
     }
-  }
+  };
 
   //  Update the DeviceId --> friendly name mappings.
   //  Used for when names CHANGE
   const replaceMemberName = (deviceId, newName) => {
-    var newFriendlyNames = friendlyNames
-    newFriendlyNames[deviceId] = newName
-    setFriendlyNames({ ...newFriendlyNames })
+    const newFriendlyNames = friendlyNames;
+    newFriendlyNames[deviceId] = newName;
+    setFriendlyNames({ ...newFriendlyNames });
 
     //  Force an update of the messages view with the new name
-    setMessages(msgs => [...msgs])
-  }
+    setMessages(msgs => [...msgs]);
+  };
 
   //  The 'master record' for each device's friendly name is stored in PubNub Object storage.
   //  This avoids the application defining its own server storage or trying to keep track of all
@@ -205,23 +205,23 @@ const ChatView = ({ user_unique_id, channel_name }) => {
   const lookupMemberName = async deviceIdentifier => {
     if (friendlyNames[deviceIdentifier] === undefined) {
       try {
-        const result = await getUUIDMetadata(pubnub, deviceIdentifier)
-        var newFriendlyNames = friendlyNames
-        newFriendlyNames[deviceIdentifier] = result.data.name
-        setFriendlyNames({ ...newFriendlyNames })
+        const result = await getUUIDMetadata(pubnub, deviceIdentifier);
+        const newFriendlyNames = friendlyNames;
+        newFriendlyNames[deviceIdentifier] = result.data.name;
+        setFriendlyNames({ ...newFriendlyNames });
 
-        if (deviceIdentifier == user_unique_id) {
-          setMyFriendlyName(result.data.name)
+        if (deviceIdentifier === userUniqueId) {
+          setMyFriendlyName(result.data.name);
         }
 
         //  Force an update of the messages view with the new name
-        setMessages(msgs => [...msgs])
+        setMessages(msgs => [...msgs]);
       } catch (error) {
         //  This happens if the UUID is not known on the server which is
         //  a common occurance so just swallow this
       }
     }
-  }
+  };
 
   /**
    * Button handler for the Edit / Save friendly name button
@@ -231,32 +231,32 @@ const ChatView = ({ user_unique_id, channel_name }) => {
     if (friendlyNameEditable) {
       //  Save the current value
       try {
-        const result = await setUUIDMetadata(pubnub, myFriendlyName)
+        await setUUIDMetadata(pubnub, myFriendlyName);
       } catch (status) {
-        console.log('Save friendly name status: ' + status)
+        console.log("Save friendly name status: " + status);
       }
-      setFriendlyNameButtonText('Edit')
-      setFriendlyNameEditable(false)
+      setFriendlyNameButtonText("Edit");
+      setFriendlyNameEditable(false);
     } else {
-      setFriendlyNameButtonText('Save')
-      setFriendlyNameEditable(true)
+      setFriendlyNameButtonText("Save");
+      setFriendlyNameEditable(true);
     }
-  }
+  };
 
   /**
    * Button handler for the Send button
    */
   const handleSend = () => {
-    if (input === '') {
-      return
+    if (input === "") {
+      return;
     }
 
     // Clear the input field.
-    setInput('')
+    setInput("");
 
     // Publish our message to the channel `chat`
-    publish(pubnub, channel_name, input)
-  }
+    publish(pubnub, channelName, input);
+  };
 
   return (
     <SafeAreaView style={options.styles.outerContainer}>
@@ -265,7 +265,7 @@ const ChatView = ({ user_unique_id, channel_name }) => {
         behavior='height'
         keyboardVerticalOffset={Platform.select({
           ios: 78,
-          android: 140,
+          android: 140
         })}
       >
         {/*
@@ -275,9 +275,9 @@ const ChatView = ({ user_unique_id, channel_name }) => {
         <View style={options.styles.topContainer}>
           <View style={options.styles.membersOnlineContainer}>
             <Text style={[options.styles.member, options.styles.highlight]}>
-              Members Online:
+            Members Online:
             </Text>
-            {onlineMembers['online'].map(member => (
+            {onlineMembers.online.map(member => (
               <Text style={options.styles.member} key={member}>
                 {friendlyNames[member] !== undefined
                   ? friendlyNames[member]
@@ -321,14 +321,14 @@ const ChatView = ({ user_unique_id, channel_name }) => {
               <View
                 key={message.id}
                 style={
-                  message.author == user_unique_id
+                  message.author === userUniqueId
                     ? options.styles.messageContainerMe
                     : options.styles.messageContainerThem
                 }
               >
                 <View
                   style={
-                    message.author == user_unique_id
+                    message.author === userUniqueId
                       ? options.styles.avatarNone
                       : options.styles.avatarThem
                   }
@@ -337,22 +337,24 @@ const ChatView = ({ user_unique_id, channel_name }) => {
                     style={options.styles.logo}
                     source={{
                       uri:
-                        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAA5CAYAAAB0+HhyAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TpUWqInaQ4pChOlkQFXHUKhShQqgVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi6OSk6CIl/i8ptIj14Lgf7+497t4BQr3MNKtrHNB020wl4mImuyoGXhHEIPowgIjMLGNOkpLoOL7u4ePrXYxndT735+hVcxYDfCLxLDNMm3iDeHrTNjjvE4dZUVaJz4nHTLog8SPXFY/fOBdcFnhm2Eyn5onDxGKhjZU2ZkVTI54ijqqaTvlCxmOV8xZnrVxlzXvyF4Zy+soy12kOI4FFLEGCCAVVlFCGjRitOikWUrQf7+CPuH6JXAq5SmDkWEAFGmTXD/4Hv7u18pMTXlIoDnS/OM7HCBDYBRo1x/k+dpzGCeB/Bq70lr9SB2Y+Sa+1tOgR0L8NXFy3NGUPuNwBhp4M2ZRdyU9TyOeB9zP6piwweAv0rHm9Nfdx+gCkqavkDXBwCIwWKHu9w7uD7b39e6bZ3w9BPXKTmZenygAAAAZiS0dEAAAAAAAA+UO7fwAAAAlwSFlzAAAN1wAADdcBQiibeAAAAAd0SU1FB+YIEw4TFA++WWoAAALfSURBVGje7ZpNaxZXFICfMwbUxkZUqBJU0C78gApG20VFkdBWkErMQlFBF+K6tsv2X4h7V7qutqsWwQ/MQhFbN35sYtWgpVCjTTUq5n26cIQIDeSdzJ13JuTZDgPzzDn3nnPPTFAiagBbgb3ANmAFsDK/PAI8BoaAc8D1iJA6oWbqEXXY6TOsHlazukhsUm9anN/UTzotsVt95swZUwc7JXFQnbA8JtQDVUv0qc8tn3H1syLPFAUkuoE7k3ajsnkAbIiIF+3cVGTH+C6hBMBq4HjSiKhLgXtAT+LsfQasiYjRVBEZrEACYDEwkDK1BircUwaSpFbefowB3RWJ/Av0TLeNaSciyyqUAFgELEmRWr0dqLu9KUQ+6IDIohQif3ZA5FGKxT4fGC/SDRTthIAFEfG61IhExCvgboXRuD1diSJ15FyFImdTFsSzFYqkfWnqedNzoYqzyKdqK6FES91S1cHqZEKRE1WeELsSpdh5tavq4+5SdahEiSv5eacjA4j56qkSJM6oC+sw2xpUbxcQuKXurdu0sSufNv6cT0Om4oX6Uz5lLG09RCKpbqAPWAUsn9R0jgA3IuI5c8wxR6VESYu7Jx8UzGvz1glgNCL+qVwk/zCzHfgK2AFsBGZakf8GbgGXgV+BKxHRSlUnFqs/qPcraOP/UL/PI11qoftWfWr1jKrfqPNmKrFWvWbnuaquKSrRn7+RuvBE3dmuxB71pfXjpfr1tHYtdQfwC7CgpiVjHPgyIoamFFGXA7/z9kN/nfkL2BwRj6YaB51ugATAR8Cp/51rqYeALxrUlexS97+XWvk+fRf4uGEt1jCwLiLevIvIgQZKAKwF9k1OrWMNbnyPAoTaCzyk2Df3OtACejOgv8ES77KqPwM+nwXnqm0ZsH4WiKzL8pFN01mdAR/OApGeLF/1TaeVAZdmgcjFUFcBN2njd4maMQpsyiLiIbAZ+JG3P7I0hbH8mfsiYuQ/Y2ZPZ0NMPQgAAAAASUVORK5CYII=',
+                        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAA5CAYAAAB0+HhyAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TpUWqInaQ4pChOlkQFXHUKhShQqgVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi6OSk6CIl/i8ptIj14Lgf7+497t4BQr3MNKtrHNB020wl4mImuyoGXhHEIPowgIjMLGNOkpLoOL7u4ePrXYxndT735+hVcxYDfCLxLDNMm3iDeHrTNjjvE4dZUVaJz4nHTLog8SPXFY/fOBdcFnhm2Eyn5onDxGKhjZU2ZkVTI54ijqqaTvlCxmOV8xZnrVxlzXvyF4Zy+soy12kOI4FFLEGCCAVVlFCGjRitOikWUrQf7+CPuH6JXAq5SmDkWEAFGmTXD/4Hv7u18pMTXlIoDnS/OM7HCBDYBRo1x/k+dpzGCeB/Bq70lr9SB2Y+Sa+1tOgR0L8NXFy3NGUPuNwBhp4M2ZRdyU9TyOeB9zP6piwweAv0rHm9Nfdx+gCkqavkDXBwCIwWKHu9w7uD7b39e6bZ3w9BPXKTmZenygAAAAZiS0dEAAAAAAAA+UO7fwAAAAlwSFlzAAAN1wAADdcBQiibeAAAAAd0SU1FB+YIEw4TFA++WWoAAALfSURBVGje7ZpNaxZXFICfMwbUxkZUqBJU0C78gApG20VFkdBWkErMQlFBF+K6tsv2X4h7V7qutqsWwQ/MQhFbN35sYtWgpVCjTTUq5n26cIQIDeSdzJ13JuTZDgPzzDn3nnPPTFAiagBbgb3ANmAFsDK/PAI8BoaAc8D1iJA6oWbqEXXY6TOsHlazukhsUm9anN/UTzotsVt95swZUwc7JXFQnbA8JtQDVUv0qc8tn3H1syLPFAUkuoE7k3ajsnkAbIiIF+3cVGTH+C6hBMBq4HjSiKhLgXtAT+LsfQasiYjRVBEZrEACYDEwkDK1BircUwaSpFbefowB3RWJ/Av0TLeNaSciyyqUAFgELEmRWr0dqLu9KUQ+6IDIohQif3ZA5FGKxT4fGC/SDRTthIAFEfG61IhExCvgboXRuD1diSJ15FyFImdTFsSzFYqkfWnqedNzoYqzyKdqK6FES91S1cHqZEKRE1WeELsSpdh5tavq4+5SdahEiSv5eacjA4j56qkSJM6oC+sw2xpUbxcQuKXurdu0sSufNv6cT0Om4oX6Uz5lLG09RCKpbqAPWAUsn9R0jgA3IuI5c8wxR6VESYu7Jx8UzGvz1glgNCL+qVwk/zCzHfgK2AFsBGZakf8GbgGXgV+BKxHRSlUnFqs/qPcraOP/UL/PI11qoftWfWr1jKrfqPNmKrFWvWbnuaquKSrRn7+RuvBE3dmuxB71pfXjpfr1tHYtdQfwC7CgpiVjHPgyIoamFFGXA7/z9kN/nfkL2BwRj6YaB51ugATAR8Cp/51rqYeALxrUlexS97+XWvk+fRf4uGEt1jCwLiLevIvIgQZKAKwF9k1OrWMNbnyPAoTaCzyk2Df3OtACejOgv8ES77KqPwM+nwXnqm0ZsH4WiKzL8pFN01mdAR/OApGeLF/1TaeVAZdmgcjFUFcBN2njd4maMQpsyiLiIbAZ+JG3P7I0hbH8mfsiYuQ/Y2ZPZ0NMPQgAAAAASUVORK5CYII="
                     }}
                   />
                 </View>
                 <View style={options.styles.messageContent}>
-                  {friendlyNames[message.author] !== undefined ? (
+                  {friendlyNames[message.author] !== undefined
+                    ? (
                     <Text style={options.styles.messageSender}>
-                      {friendlyNames[message.author]}{' '}
-                      {message.author == user_unique_id ? '(ME)' : ''}
+                      {friendlyNames[message.author]}{" "}
+                      {message.author === userUniqueId ? "(ME)" : ""}
                     </Text>
-                  ) : (
+                      )
+                    : (
                     <Text style={options.styles.messageSender}>
-                      {message.author}{' '}
-                      {message.author == user_unique_id ? '(ME)' : ''}
+                      {message.author}{" "}
+                      {message.author === userUniqueId ? "(ME)" : ""}
                     </Text>
-                  )}
+                      )}
                   <Text style={options.styles.messageText}>{message.content}</Text>
                 </View>
                 <View>
@@ -364,7 +366,7 @@ const ChatView = ({ user_unique_id, channel_name }) => {
 
                 <View
                   style={
-                    message.author == user_unique_id
+                    message.author === userUniqueId
                       ? options.styles.avatarMe
                       : options.styles.avatarNone
                   }
@@ -373,13 +375,12 @@ const ChatView = ({ user_unique_id, channel_name }) => {
                     style={options.styles.logo}
                     source={{
                       uri:
-                        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAA5CAYAAAB0+HhyAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TpUWqInaQ4pChOlkQFXHUKhShQqgVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi6OSk6CIl/i8ptIj14Lgf7+497t4BQr3MNKtrHNB020wl4mImuyoGXhHEIPowgIjMLGNOkpLoOL7u4ePrXYxndT735+hVcxYDfCLxLDNMm3iDeHrTNjjvE4dZUVaJz4nHTLog8SPXFY/fOBdcFnhm2Eyn5onDxGKhjZU2ZkVTI54ijqqaTvlCxmOV8xZnrVxlzXvyF4Zy+soy12kOI4FFLEGCCAVVlFCGjRitOikWUrQf7+CPuH6JXAq5SmDkWEAFGmTXD/4Hv7u18pMTXlIoDnS/OM7HCBDYBRo1x/k+dpzGCeB/Bq70lr9SB2Y+Sa+1tOgR0L8NXFy3NGUPuNwBhp4M2ZRdyU9TyOeB9zP6piwweAv0rHm9Nfdx+gCkqavkDXBwCIwWKHu9w7uD7b39e6bZ3w9BPXKTmZenygAAAAZiS0dEAAAAAAAA+UO7fwAAAAlwSFlzAAAN1wAADdcBQiibeAAAAAd0SU1FB+YIEw4TFA++WWoAAALfSURBVGje7ZpNaxZXFICfMwbUxkZUqBJU0C78gApG20VFkdBWkErMQlFBF+K6tsv2X4h7V7qutqsWwQ/MQhFbN35sYtWgpVCjTTUq5n26cIQIDeSdzJ13JuTZDgPzzDn3nnPPTFAiagBbgb3ANmAFsDK/PAI8BoaAc8D1iJA6oWbqEXXY6TOsHlazukhsUm9anN/UTzotsVt95swZUwc7JXFQnbA8JtQDVUv0qc8tn3H1syLPFAUkuoE7k3ajsnkAbIiIF+3cVGTH+C6hBMBq4HjSiKhLgXtAT+LsfQasiYjRVBEZrEACYDEwkDK1BircUwaSpFbefowB3RWJ/Av0TLeNaSciyyqUAFgELEmRWr0dqLu9KUQ+6IDIohQif3ZA5FGKxT4fGC/SDRTthIAFEfG61IhExCvgboXRuD1diSJ15FyFImdTFsSzFYqkfWnqedNzoYqzyKdqK6FES91S1cHqZEKRE1WeELsSpdh5tavq4+5SdahEiSv5eacjA4j56qkSJM6oC+sw2xpUbxcQuKXurdu0sSufNv6cT0Om4oX6Uz5lLG09RCKpbqAPWAUsn9R0jgA3IuI5c8wxR6VESYu7Jx8UzGvz1glgNCL+qVwk/zCzHfgK2AFsBGZakf8GbgGXgV+BKxHRSlUnFqs/qPcraOP/UL/PI11qoftWfWr1jKrfqPNmKrFWvWbnuaquKSrRn7+RuvBE3dmuxB71pfXjpfr1tHYtdQfwC7CgpiVjHPgyIoamFFGXA7/z9kN/nfkL2BwRj6YaB51ugATAR8Cp/51rqYeALxrUlexS97+XWvk+fRf4uGEt1jCwLiLevIvIgQZKAKwF9k1OrWMNbnyPAoTaCzyk2Df3OtACejOgv8ES77KqPwM+nwXnqm0ZsH4WiKzL8pFN01mdAR/OApGeLF/1TaeVAZdmgcjFUFcBN2njd4maMQpsyiLiIbAZ+JG3P7I0hbH8mfsiYuQ/Y2ZPZ0NMPQgAAAAASUVORK5CYII=',
+                        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAA5CAYAAAB0+HhyAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TpUWqInaQ4pChOlkQFXHUKhShQqgVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi6OSk6CIl/i8ptIj14Lgf7+497t4BQr3MNKtrHNB020wl4mImuyoGXhHEIPowgIjMLGNOkpLoOL7u4ePrXYxndT735+hVcxYDfCLxLDNMm3iDeHrTNjjvE4dZUVaJz4nHTLog8SPXFY/fOBdcFnhm2Eyn5onDxGKhjZU2ZkVTI54ijqqaTvlCxmOV8xZnrVxlzXvyF4Zy+soy12kOI4FFLEGCCAVVlFCGjRitOikWUrQf7+CPuH6JXAq5SmDkWEAFGmTXD/4Hv7u18pMTXlIoDnS/OM7HCBDYBRo1x/k+dpzGCeB/Bq70lr9SB2Y+Sa+1tOgR0L8NXFy3NGUPuNwBhp4M2ZRdyU9TyOeB9zP6piwweAv0rHm9Nfdx+gCkqavkDXBwCIwWKHu9w7uD7b39e6bZ3w9BPXKTmZenygAAAAZiS0dEAAAAAAAA+UO7fwAAAAlwSFlzAAAN1wAADdcBQiibeAAAAAd0SU1FB+YIEw4TFA++WWoAAALfSURBVGje7ZpNaxZXFICfMwbUxkZUqBJU0C78gApG20VFkdBWkErMQlFBF+K6tsv2X4h7V7qutqsWwQ/MQhFbN35sYtWgpVCjTTUq5n26cIQIDeSdzJ13JuTZDgPzzDn3nnPPTFAiagBbgb3ANmAFsDK/PAI8BoaAc8D1iJA6oWbqEXXY6TOsHlazukhsUm9anN/UTzotsVt95swZUwc7JXFQnbA8JtQDVUv0qc8tn3H1syLPFAUkuoE7k3ajsnkAbIiIF+3cVGTH+C6hBMBq4HjSiKhLgXtAT+LsfQasiYjRVBEZrEACYDEwkDK1BircUwaSpFbefowB3RWJ/Av0TLeNaSciyyqUAFgELEmRWr0dqLu9KUQ+6IDIohQif3ZA5FGKxT4fGC/SDRTthIAFEfG61IhExCvgboXRuD1diSJ15FyFImdTFsSzFYqkfWnqedNzoYqzyKdqK6FES91S1cHqZEKRE1WeELsSpdh5tavq4+5SdahEiSv5eacjA4j56qkSJM6oC+sw2xpUbxcQuKXurdu0sSufNv6cT0Om4oX6Uz5lLG09RCKpbqAPWAUsn9R0jgA3IuI5c8wxR6VESYu7Jx8UzGvz1glgNCL+qVwk/zCzHfgK2AFsBGZakf8GbgGXgV+BKxHRSlUnFqs/qPcraOP/UL/PI11qoftWfWr1jKrfqPNmKrFWvWbnuaquKSrRn7+RuvBE3dmuxB71pfXjpfr1tHYtdQfwC7CgpiVjHPgyIoamFFGXA7/z9kN/nfkL2BwRj6YaB51ugATAR8Cp/51rqYeALxrUlexS97+XWvk+fRf4uGEt1jCwLiLevIvIgQZKAKwF9k1OrWMNbnyPAoTaCzyk2Df3OtACejOgv8ES77KqPwM+nwXnqm0ZsH4WiKzL8pFN01mdAR/OApGeLF/1TaeVAZdmgcjFUFcBN2njd4maMQpsyiLiIbAZ+JG3P7I0hbH8mfsiYuQ/Y2ZPZ0NMPQgAAAAASUVORK5CYII="
                     }}
                   />
                 </View>
 
               </View>
-
 
             ))}
           </View>
@@ -403,7 +404,7 @@ const ChatView = ({ user_unique_id, channel_name }) => {
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default ChatView
+export default ChatView;

@@ -8,15 +8,14 @@ import {
 import CheckBox from "@react-native-community/checkbox";
 import { cloneArray, createChannel } from "../utils";
 import options from "../options";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import PubNub from 'pubnub'
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import PubNub from "pubnub";
 
 const pubnub = new PubNub({
   subscribeKey: options.PUBNUB_SUB,
   publishKey: options.PUBNUB_PUB,
-  uuid: 'ChangeMe',
-})
+  uuid: "ChangeMe"
+});
 
 const CreateGroup = ({ navigation }) => {
   const [contacts, setContacts] = useState(options.users);
@@ -30,12 +29,12 @@ const CreateGroup = ({ navigation }) => {
   };
 
   const createGroup = async () => {
-    const memberList = contacts.filter(contact => contact['isSelected']).map(contact => contact.user_id)
-    const tmpUser = await AsyncStorage.getItem('user')
-    const user = JSON.parse(tmpUser)
-    await createChannel(pubnub, user.value, [user.value, ...memberList], name, {})
+    const memberList = contacts.filter(contact => contact.isSelected).map(contact => contact.user_id);
+    const tmpUser = await AsyncStorage.getItem("user");
+    const user = JSON.parse(tmpUser);
+    await createChannel(pubnub, user.value, [user.value, ...memberList], name, {});
   };
-  
+
   const ListItem = (item) => {
     return (
       <View key={item.user_id} style={styles.ListItem}>
@@ -83,7 +82,7 @@ const CreateGroup = ({ navigation }) => {
       </View>
     </>
   );
-}
+};
 
 const styles = StyleSheet.create({
   Container: {
@@ -136,4 +135,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default CreateGroup
+export default CreateGroup;
