@@ -3,11 +3,15 @@ import {
   AppState, Button, Image, KeyboardAvoidingView, Platform, SafeAreaView,
   ScrollView,
   Text,
-  TextInput, View
+  TextInput, TouchableOpacity, View
 } from "react-native";
 
-import options, { users } from "../options";
 import PubNub from "pubnub";
+import EmojiSelector from "react-native-emoji-selector";
+import {
+  Menu, MenuOption, MenuOptions, MenuTrigger
+} from "react-native-popup-menu";
+import options, { users } from "../options";
 import { convertTimetoken, fetchMessages, getUUIDMetadata, hereNow, publish, setMemberships, setUUID, setUUIDMetadata, subscribe, unsubscribe } from "../utils";
 
 const pubnub = new PubNub({
@@ -24,6 +28,8 @@ const ChatView = ({ userUniqueId, channelName }) => {
   const [myFriendlyName, setMyFriendlyName] = useState("");
   const [friendlyNameEditable, setFriendlyNameEditable] = useState(false);
   const [friendlyNameButtonText, setFriendlyNameButtonText] = useState("Edit");
+
+  const [actionSheet, setActionSheet] = useState(false);
 
   //  This application is designed to unsubscribe from the channel when it goes to the background and re-subscribe
   //  when it comes to the foreground.  This is a fairly common design pattern.  In production, you would probably
@@ -258,6 +264,29 @@ const ChatView = ({ userUniqueId, channelName }) => {
     publish(pubnub, channelName, input);
   };
 
+  const pickEmoji = () => {
+    setActionSheet(!actionSheet);
+  };
+
+  const onEmojiSelected = (emoji) => {
+    setInput(input.concat(emoji));
+  };
+
+  const Actions = () => {
+    return (
+      <Menu>
+        <MenuTrigger customStyles={{ triggerWrapper: { paddingHorizontal: 5 } }}>
+          <Image style={{ width: 30, height: 30 }} resizeMode="contain" source={require("../image.png")}/>
+        </MenuTrigger>
+        <MenuOptions optionsContainerStyle={{ marginTop: -52, width: 60, marginLeft: 5 }}>
+          <MenuOption onSelect={() => {}} text="Image" />
+          <View style={{ borderBottomColor: "lightgray", borderBottomWidth: 1 }} />
+          <MenuOption onSelect={() => {}} text="Video" />
+        </MenuOptions>
+      </Menu>
+    );
+  };
+
   return (
     <SafeAreaView style={options.styles.outerContainer}>
       <KeyboardAvoidingView
@@ -389,19 +418,31 @@ const ChatView = ({ userUniqueId, channelName }) => {
           //  Text field to input messages and send button
         }
         <View style={options.styles.bottomContainer}>
-          <TextInput
-            style={options.styles.textInput}
-            value={input}
-            onChangeText={setInput}
-            onSubmitEditing={handleSend}
-            returnKeyType='send'
-            enablesReturnKeyAutomatically={true}
-            placeholder='Type your message here...'
-          />
+          <TouchableOpacity style={options.styles.triggerWrapper} onPress={pickEmoji} >
+            <Image style={{ width: 30, height: 30 }} resizeMode="contain" source={actionSheet ? require("../keyboard-dark.png") : require("../emoji-dark.png")}/>
+          </TouchableOpacity>
+          <View style={options.styles.inputContainer}>
+            <TextInput
+              style={options.styles.textInput}
+              value={input}
+              onChangeText={setInput}
+              onSubmitEditing={handleSend}
+              returnKeyType='send'
+              enablesReturnKeyAutomatically={true}
+              placeholder='Type your message here...'
+            />
+            <Actions/>
+          </View>
           <View style={options.styles.submitButton}>
             <Button title='Send' onPress={handleSend} color='#33687B' />
           </View>
         </View>
+        {actionSheet && (
+          <View style={{ height: 300 }}>
+            <EmojiSelector showSearchBar={false} columns={8} onEmojiSelected={(emoji) => onEmojiSelected(emoji)} />
+          </View>
+        )}
+
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

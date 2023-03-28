@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
   sectionContainer: {
@@ -135,17 +135,25 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    padding: 8,
-    height: 80,
-    backgroundColor: "#d6dce4"
+    height: 60,
+    backgroundColor: "#FFF",
+    borderRadius: 4,
+    elevation: 2
+  },
+  inputContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 4,
+    elevation: 2,
+    width: Dimensions.get("window").width - 97
   },
   textInput: {
     flex: 1,
-    backgroundColor: "#fff",
     color: "rgba(0, 0, 0, 1)",
     borderRadius: 4,
-    padding: 16,
-    elevation: 2
+    padding: 5
   },
   textInputFriendlyName: {
     flex: 1,
@@ -160,13 +168,16 @@ const styles = StyleSheet.create({
     right: 32
   },
   submitButton: {
-    position: "absolute",
-    right: 32
+    paddingHorizontal: 5
   },
   logo: {
     width: "50%",
     height: undefined,
     aspectRatio: 0.9
+  },
+  triggerWrapper: {
+    paddingHorizontal: 2,
+    paddingVertical: 10
   }
 });
 
