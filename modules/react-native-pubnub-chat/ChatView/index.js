@@ -5,9 +5,10 @@ import {
   Text,
   TextInput, TouchableOpacity, View
 } from "react-native";
-
+import ImagePicker from "react-native-image-crop-picker";
 import PubNub from "pubnub";
 import EmojiSelector from "react-native-emoji-selector";
+import Video from "react-native-video";
 import {
   Menu, MenuOption, MenuOptions, MenuTrigger
 } from "react-native-popup-menu";
@@ -82,6 +83,17 @@ const ChatView = ({ userUniqueId, channelName }) => {
               author: receivedMsg.publisher,
               content: receivedMsg.message,
               timetoken: receivedMsg.timetoken
+            }
+          ]);
+        },
+        file: envelop => {
+          setMessages(msgs => [
+            ...msgs,
+            {
+              id: envelop.timetoken,
+              author: envelop.publisher,
+              content: { file: envelop.file, message: envelop.message },
+              timetoken: envelop.timetoken
             }
           ]);
         },
@@ -272,16 +284,72 @@ const ChatView = ({ userUniqueId, channelName }) => {
     setInput(input.concat(emoji));
   };
 
+  const pickImage = () => {
+    ImagePicker.openPicker({
+      mediaType: "photo",
+      multiple: false,
+      cropping: true
+    }).then(async image => {
+      if (image.size > 4900000) {
+        alert("File size must be less then 5mb.");
+        return;
+      }
+      await pubnub.sendFile({
+        channel: channelName,
+        message: {
+          type: "image"
+        },
+        file: {
+          uri: image.path,
+          name: "Image.png",
+          mimeType: image.mime
+        }
+      });
+    });
+  };
+
+  const pickVideo = () => {
+    ImagePicker.openPicker({
+      mediaType: "video",
+      multiple: false
+    }).then(async video => {
+      if (video.size > 4900000) {
+        alert("File size must be less then 5mb.");
+        return;
+      }
+      await pubnub.sendFile({
+        channel: channelName,
+        message: {
+          type: "video"
+        },
+        file: {
+          uri: video.path,
+          name: "Video.mp4",
+          mimeType: video.mime
+        }
+      });
+    });
+  };
+
+  const getUrl = (content) => {
+    const result = pubnub.getFileUrl({
+      channel: channelName,
+      id: content.id,
+      name: content.name
+    });
+    return result;
+  };
+
   const Actions = () => {
     return (
       <Menu>
         <MenuTrigger customStyles={{ triggerWrapper: { paddingHorizontal: 5 } }}>
-          <Image style={{ width: 30, height: 30 }} resizeMode="contain" source={require("../image.png")}/>
+          <Image style={{ width: 30, height: 30 }} resizeMode="contain" source={require("../image.png")} />
         </MenuTrigger>
         <MenuOptions optionsContainerStyle={{ marginTop: -52, width: 60, marginLeft: 5 }}>
-          <MenuOption onSelect={() => {}} text="Image" />
+          <MenuOption onSelect={pickImage} text="Image" />
           <View style={{ borderBottomColor: "lightgray", borderBottomWidth: 1 }} />
-          <MenuOption onSelect={() => {}} text="Video" />
+          <MenuOption onSelect={pickVideo} text="Video" />
         </MenuOptions>
       </Menu>
     );
@@ -304,7 +372,7 @@ const ChatView = ({ userUniqueId, channelName }) => {
         <View style={options.styles.topContainer}>
           <View style={options.styles.membersOnlineContainer}>
             <Text style={[options.styles.member, options.styles.highlight]}>
-            Members Online:
+              Members Online:
             </Text>
             {onlineMembers.online.map(member => (
               <Text style={options.styles.member} key={member}>
@@ -373,18 +441,29 @@ const ChatView = ({ userUniqueId, channelName }) => {
                 <View style={options.styles.messageContent}>
                   {friendlyNames[message.author] !== undefined
                     ? (
-                    <Text style={options.styles.messageSender}>
-                      {friendlyNames[message.author]}{" "}
-                      {message.author === userUniqueId ? "(ME)" : ""}
-                    </Text>
+                      <Text style={options.styles.messageSender}>
+                        {friendlyNames[message.author]}{" "}
+                        {message.author === userUniqueId ? "(ME)" : ""}
+                      </Text>
                       )
                     : (
-                    <Text style={options.styles.messageSender}>
-                      {message.author}{" "}
-                      {message.author === userUniqueId ? "(ME)" : ""}
-                    </Text>
+                      <Text style={options.styles.messageSender}>
+                        {message.author}{" "}
+                        {message.author === userUniqueId ? "(ME)" : ""}
+                      </Text>
                       )}
-                  <Text style={options.styles.messageText}>{message.content}</Text>
+                  {
+                    (typeof message.content === "string")
+                      ? <Text style={options.styles.messageText}>{message.content}</Text>
+                      : message.content.message?.type === "video"
+                        ? <Video
+                      controls={true}
+                      style={{ borderRadius: 16, marginTop: 6, width: "100%", height: 180 }}
+                      source={{ uri: getUrl(message.content.file) }}
+                      />
+                        : <Image resizeMode="cover" style={{ borderRadius: 16, marginTop: 6, width: "100%", height: 180 }} source={{ uri: getUrl(message.content.file) }} />
+                  }
+
                 </View>
                 <View>
                   <Text></Text>
