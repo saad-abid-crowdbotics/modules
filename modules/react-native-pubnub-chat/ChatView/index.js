@@ -9,9 +9,7 @@ import ImagePicker from "react-native-image-crop-picker";
 import PubNub from "pubnub";
 import EmojiSelector from "react-native-emoji-selector";
 import Video from "react-native-video";
-import {
-  Menu, MenuOption, MenuOptions, MenuTrigger
-} from "react-native-popup-menu";
+import { MenuView } from "@react-native-menu/menu";
 import options, { users } from "../options";
 import { convertTimetoken, fetchMessages, getUUIDMetadata, hereNow, publish, setMemberships, setUUID, setUUIDMetadata, subscribe, unsubscribe } from "../utils";
 
@@ -340,21 +338,6 @@ const ChatView = ({ userUniqueId, channelName }) => {
     return result;
   };
 
-  const Actions = () => {
-    return (
-      <Menu>
-        <MenuTrigger customStyles={{ triggerWrapper: { paddingHorizontal: 5 } }}>
-          <Image style={{ width: 30, height: 30 }} resizeMode="contain" source={require("../image.png")} />
-        </MenuTrigger>
-        <MenuOptions optionsContainerStyle={{ marginTop: -52, width: 60, marginLeft: 5 }}>
-          <MenuOption onSelect={pickImage} text="Image" />
-          <View style={{ borderBottomColor: "lightgray", borderBottomWidth: 1 }} />
-          <MenuOption onSelect={pickVideo} text="Video" />
-        </MenuOptions>
-      </Menu>
-    );
-  };
-
   return (
     <SafeAreaView style={options.styles.outerContainer}>
       <KeyboardAvoidingView
@@ -401,7 +384,6 @@ const ChatView = ({ userUniqueId, channelName }) => {
             <View style={options.styles.saveFriendlyName}>
               <Button
                 title={friendlyNameButtonText}
-                buttonStyle={options.styles.saveFriendlyName}
                 color='#33687B'
                 onPress={handleSaveFriendlyName}
               />
@@ -510,7 +492,32 @@ const ChatView = ({ userUniqueId, channelName }) => {
               enablesReturnKeyAutomatically={true}
               placeholder='Type your message here...'
             />
-            <Actions/>
+            <View>
+              <MenuView
+                title="Actions"
+                onPressAction={({ nativeEvent }) => {
+                  if (nativeEvent.event === "image") {
+                    pickImage();
+                  } else if (nativeEvent.event === "video") {
+                    pickVideo();
+                  }
+                }}
+                actions={[{
+                  id: "image",
+                  title: "Image"
+                }, {
+                  id: "video",
+                  title: "Video"
+                }, {
+                  id: "attachment",
+                  title: "Attachment"
+                }]}
+              >
+                <View style={{ paddingHorizontal: 6 }}>
+                  <Image style={{ width: 30, height: 30 }} resizeMode="contain" source={require("../image.png")} />
+                </View>
+              </MenuView>
+            </View>
           </View>
           <View style={options.styles.submitButton}>
             <Button title='Send' onPress={handleSend} color='#33687B' />
