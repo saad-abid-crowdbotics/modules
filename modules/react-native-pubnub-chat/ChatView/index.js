@@ -6,12 +6,14 @@ import {
   TextInput, TouchableOpacity, View
 } from "react-native";
 import ImagePicker from "react-native-image-crop-picker";
+import DocumentPicker from "react-native-document-picker";
+import RNFetchBlob from "rn-fetch-blob";
 import PubNub from "pubnub";
 import EmojiSelector from "react-native-emoji-selector";
 import Video from "react-native-video";
 import { MenuView } from "@react-native-menu/menu";
 import options, { users } from "../options";
-import { convertTimetoken, fetchMessages, getUUIDMetadata, hereNow, publish, setMemberships, setUUID, setUUIDMetadata, subscribe, unsubscribe } from "../utils";
+import { convertTimetoken, fetchMessages, fileExtension, getUUIDMetadata, hereNow, makeId, publish, setMemberships, setUUID, setUUIDMetadata, subscribe, unsubscribe } from "../utils";
 
 const pubnub = new PubNub({
   subscribeKey: options.PUBNUB_SUB,
@@ -138,6 +140,9 @@ const ChatView = ({ userUniqueId, channelName }) => {
       //  but here we just load the 8 most recent messages
       fetchMessages(pubnub, channelName)
         .then(historicalMessages => {
+          if (Object.values(historicalMessages.channels).length === 0) {
+            return;
+          }
           const historicalMessagesArray =
             historicalMessages.channels[channelName];
           for (let i = 0; i < historicalMessagesArray.length; i++) {
@@ -299,7 +304,7 @@ const ChatView = ({ userUniqueId, channelName }) => {
         },
         file: {
           uri: image.path,
-          name: "Image.png",
+          name: makeId() + "." + fileExtension(image.path),
           mimeType: image.mime
         }
       });
@@ -322,10 +327,34 @@ const ChatView = ({ userUniqueId, channelName }) => {
         },
         file: {
           uri: video.path,
-          name: "Video.mp4",
+          name: makeId() + "." + fileExtension(video.path),
           mimeType: video.mime
         }
       });
+    });
+  };
+
+  const pickAttachment = () => {
+    DocumentPicker.pickSingle({
+      allowMultiSelection: false,
+      copyTo: "cachesDirectory"
+    }).then(attachment => {
+      if (attachment.size > 4900000) {
+        alert("File size must be less then 5mb.");
+        return;
+      }
+      pubnub.sendFile({
+        channel: channelName,
+        message: {
+          type: "attachment"
+        },
+        file: {
+          uri: attachment.fileCopyUri,
+          name: attachment.name,
+          mimeType: attachment.type
+        }
+      }).then(res => {})
+        .catch(error => console.log("error: ", error));
     });
   };
 
@@ -336,6 +365,52 @@ const ChatView = ({ userUniqueId, channelName }) => {
       name: content.name
     });
     return result;
+  };
+
+  const downloadFile = (url) => {
+    const { config, fs } = RNFetchBlob;
+    const DownloadDir = fs.dirs.DownloadDir;
+    const options = {
+      fileCache: true,
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        path: DownloadDir + "/pubnub-chat-attachment",
+        description: "Downloading chat attachment."
+      }
+    };
+    config(options).fetch("GET", url).then((res) => {})
+      .catch((error) => {
+        console.log("error", error);
+      });
+  };
+
+  const messageBody = (message) => {
+    if (typeof message.content === "string") {
+      return <Text style={options.styles.messageText}>{message.content}</Text>;
+    } else {
+      if (message.content.message?.type === "video") {
+        return <Video
+          controls={true}
+          style={{ borderRadius: 16, marginTop: 6, width: "100%", height: 180 }}
+          source={{ uri: getUrl(message.content.file) }}
+        />;
+      } else if (message.content.message?.type === "image") {
+        return <Image resizeMode="cover" style={{ borderRadius: 16, marginTop: 6, width: "100%", height: 180 }} source={{ uri: getUrl(message.content.file) }} />;
+      } else if (message.content.message?.type === "attachment") {
+        return <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+          <Image resizeMode="contain" style={{ width: 96, height: 96 }} source={require("../file.png")} />
+          <View>
+            <Text lineBreakMode="head" numberOfLines={3} style={options.styles.messageText}>{message.content.file.name}</Text>
+            <TouchableOpacity onPress={() => downloadFile(getUrl(message.content.file))}>
+            <Text style={[options.styles.messageText, { color: "blue" }]}>Download</Text>
+            </TouchableOpacity>
+          </View>
+        </View>;
+      } else {
+        return null;
+      }
+    }
   };
 
   return (
@@ -435,15 +510,7 @@ const ChatView = ({ userUniqueId, channelName }) => {
                       </Text>
                       )}
                   {
-                    (typeof message.content === "string")
-                      ? <Text style={options.styles.messageText}>{message.content}</Text>
-                      : message.content.message?.type === "video"
-                        ? <Video
-                      controls={true}
-                      style={{ borderRadius: 16, marginTop: 6, width: "100%", height: 180 }}
-                      source={{ uri: getUrl(message.content.file) }}
-                      />
-                        : <Image resizeMode="cover" style={{ borderRadius: 16, marginTop: 6, width: "100%", height: 180 }} source={{ uri: getUrl(message.content.file) }} />
+                    messageBody(message)
                   }
 
                 </View>
@@ -500,6 +567,8 @@ const ChatView = ({ userUniqueId, channelName }) => {
                     pickImage();
                   } else if (nativeEvent.event === "video") {
                     pickVideo();
+                  } else if (nativeEvent.event === "attachment") {
+                    pickAttachment();
                   }
                 }}
                 actions={[{
