@@ -1,0 +1,14 @@
+{
+    "name": "@modules/google-sheets",
+    "version": "1.0.1",
+    "description": "Google sheets module for react native",
+    "private": true,
+    "main": "index.js",
+    "author": "Crowdbotics",
+    "license": "ISC",
+    "dependencies": {
+    },
+    "x-dependencies": {
+        "@react-native-google-signin/google-signin": "10.0.1"
+    }
+}

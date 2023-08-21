@@ -1,0 +1,5 @@
+{
+  "title": "Google-sheets",
+  "description": "Google sheets module for react native.",
+  "root": "/modules/google-sheets"
+}
